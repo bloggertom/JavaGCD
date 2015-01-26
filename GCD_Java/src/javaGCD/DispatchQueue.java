@@ -33,7 +33,6 @@ class DispatchQueue implements Runnable, Comparable<DispatchQueue>{
 		Runnable wrapper = new Runnable(){
 			@Override
 			public void run() {
-				
 				runner.run();
 				syncTrash.add(runner);
 				syncLock.notify();

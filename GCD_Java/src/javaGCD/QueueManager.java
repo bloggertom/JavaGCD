@@ -44,7 +44,7 @@ class QueueManager implements Runnable{
 	private DispatchQueue getDispatchQueue(PriorityBlockingQueue<DispatchQueue> blockerQueue){
 		DispatchQueue queue = blockerQueue.peek();
 		if (queue == null ||blockerQueue.size() <= MAX_QUEUE_SIZE || queue.size() >= MAX_QUEUE_TOLERANCE){
-			queue = new DispatchQueue("Default Dispatch Queue "+blockerQueue.size(), priorityForQueue(blockerQueue));
+			queue = new DispatchQueue("Dispatch Queue "+blockerQueue.size(), priorityForQueue(blockerQueue));
 		}else{
 			do{
 				try {
@@ -118,11 +118,16 @@ class QueueManager implements Runnable{
 	
 	private void checkPriortyQueue(PriorityBlockingQueue<DispatchQueue> blockingQueue){
 		while(blockingQueue.size() > MAX_QUEUE_SIZE){
-			DispatchQueue queue = blockingQueue.peek();
+			DispatchQueue queue = null;
+			try {
+				queue = blockingQueue.take();
+				if(queue == null){
+					return;
+				}
+			} catch (InterruptedException e) {}
 			if(queue.state == DispatchQueue.State.IDLE || queue.state == DispatchQueue.State.DISPOSED){
 				queue.dispose();
 				System.out.println("Removing Queue");
-				blockingQueue.remove(queue);
 			}else{
 				break;
 			}
